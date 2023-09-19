@@ -1,0 +1,203 @@
+# import pandas as pd
+# import plotly.express as pex
+#
+# d1 = dict(stack=1, start='2023-09-01', finish='2023-10-01', task='Sleep')
+# d2 = dict(stack=1, start='2023-10-01', finish='2021-10-15', task='EAT')
+# d3 = dict(stack=1, start='2023-09-15', finish='2023-09-30', task='Study')
+# d4 = dict(stack=1, start='2023-10-10', finish='2023-10-30', task='Work')
+# d5 = dict(stack=1, start='2023-10-15', finish='2023-10-30', task='EAT')
+# d6 = dict(stack=1, start='2023-10-15', finish='2023-11-01', task='Study')
+# d8 = dict(stack=1, start='2023-11-02', finish='2023-11-15', task='EAT')
+# d7 = dict(stack=1, start='2023-11-02', finish='2023-11-15', task='Sleep')
+#
+# dict_list = [d1,d2,d3,d4,d5,d6,d7,d8]
+# for dict in dict_list:
+#
+#
+#
+# df = pd.DataFrame([d1,d2,d3,d4,d5,d6,d7,d8])
+#
+# gantt = pex.timeline(df, x_start='start', x_end='finish', y='stack', color='task', height=300)
+# gantt
+
+
+import pandas as pd
+import plotly.express as pex
+import matplotlib.pyplot as plt
+from tkinter.filedialog import askopenfilename
+import sys
+import kaleido
+from datetime import datetime
+from datetime import date
+from itertools import cycle
+from matplotlib.pyplot import cm
+import numpy as np
+#import plotly.graph_objects as go
+filename = askopenfilename(title="Select project sheet")
+
+projects_df = pd.read_excel(filename, engine="openpyxl")
+
+#output_df = pd.Dataframe(columns=['stack', 'start', 'finish', 'task'])
+data = []
+for x in range(0, len(projects_df)):
+
+    task_dict = dict(order=x, bandwidth=.5, effort=projects_df.loc[x, 'level_of_effort'], start=projects_df.loc[x, 'start_date'],
+                     finish=projects_df.loc[x, 'end_date'], task=projects_df.loc[x, 'task'])
+    data.append(task_dict)
+
+
+df = pd.DataFrame(data)
+
+# Adjusting stack value for overlapping events
+df = df.sort_values(by=['start', 'finish']).reset_index(drop=True)
+max_i = 0
+position = 1
+df2 = df.copy()
+for i in range(0, len(df)):
+
+    bandwidth_list = df['bandwidth'].unique().tolist()
+    bandwidth_list.sort()
+    found_place = False
+
+    print(bandwidth_list)
+
+    for bandwidth in bandwidth_list:
+        collision = False
+        # print("----bandwidth iteration: " + str(bandwidth) + "----")
+        bandwidth_df = df[df['bandwidth'] == bandwidth]
+
+        bandwidth_df = bandwidth_df.reset_index()
+        for j in range(0, len(bandwidth_list)):
+            # print("i: " + str(i))
+            # print("j: " + str(j))
+            try:
+                if ((df.loc[i, 'start'] < bandwidth_df.loc[j, 'finish'] and df.loc[i, 'finish'] >= bandwidth_df.loc[j, 'start']) and df.loc[i, 'order'] != bandwidth_df.loc[j, 'order']):
+                    df.loc[i, 'bandwidth'] = bandwidth + .5
+                    collision = True
+                    # df.loc[i, 'bandwidth'] = bandwidth + .5
+                    # print("i")
+                    # print(df.iloc[i])
+                    # print("bandwidth at j")
+                    # print(df.iloc[j])
+                    # print('break')
+                    break
+
+                # else:
+                #     df.loc[i, 'bandwidth'] = bandwidth
+            except:
+                continue
+        if collision == False:
+            df.loc[i, 'bandwidth'] = bandwidth
+            break
+
+
+    # print("i")
+    # print("task: " + df.loc[i, 'task'] + "; bandwidth: " + str(df.loc[i, 'bandwidth']))
+    # bandwidth = df.loc[i, 'bandwidth']
+    # bandwidth_list = []
+    # bandwidth_list.append(bandwidth)
+    # for j in range(0, len(df)):
+    #     # print("j begin")
+    #     # print("task: " + df.loc[j, 'task'] + "; bandwidth: " + str(df.loc[j, 'bandwidth']))
+    #
+    #     # if i == 1 and j == 0:
+    #     #     print("at 1,0")
+    #     #     print("i task:      " + df.loc[i, 'task'])
+    #     #     print("i start:     " + df.loc[i, 'start'])
+    #     #     print("i finish:    " + df.loc[i, 'finish'])
+    #     #     print("i bandwidth: " + str(df.loc[i, 'bandwidth']))
+    #     #
+    #     #     print("j task:      " + df.loc[j, 'task'])
+    #     #     print("j start:     " + df.loc[j, 'start'])
+    #     #     print("j finish:    " + df.loc[j, 'finish'])
+    #     #     print("j bandwidth: " + str(df.loc[j, 'bandwidth']))
+    #
+    #     if (df.loc[i, 'start'] < df.loc[j, 'finish'] and df.loc[i, 'bandwidth'] == df.loc[j, 'bandwidth'] and i != j):
+    #
+    #         df.loc[i, 'bandwidth'] = df.loc[j, 'bandwidth'] + .5
+    #
+    #         print("i updated: task: " + df.loc[i, 'task'] + "; bandwidth: " + str(df.loc[i, 'bandwidth']))
+    #         print("j updated: task: " + df2.loc[j, 'task'] + "; bandwidth: " + str(df2.loc[j, 'bandwidth']))
+    #     # elif df.loc[i, 'start'] >= df2.loc[j, 'finish'] :
+    #     #     df.loc[i, 'bandwidth'] = df2.loc[j, 'bandwidth']
+    #     #     df2.loc[i, 'bandwidth'] = df2.loc[j, 'bandwidth']
+    #
+    #     # print("j end")
+    #     # print("task: " + df.loc[j, 'task'] + "; bandwidth: " + str(df.loc[j, 'bandwidth']))
+    # print("i end")
+    # print("task: " + df.loc[i, 'task'] + "; bandwidth: " + str(df.loc[i, 'bandwidth']))
+    #
+    #     # else:
+    #     #     df.loc[i, 'bandwidth']
+    #     #     df.loc[i, 'bandwidth'] = df.loc[i-j, 'bandwidth'] + .5
+    #     # position_df = df[df['bandwidth'] == df.loc[j, 'bandwidth']]
+    #     # for k in reversed(range(0, len(position_df))):
+    #     #     if (df.loc[i, 'start'] < df.loc[i-j, 'finish']):
+    #     #
+    #     #         df.loc[i, 'bandwidth'] = df.loc[i-j, 'bandwidth'] + .5
+
+
+print(df)
+
+#position_df = df[df['bandwidth'] == df.loc[j, 'bandwidth']]
+# print("k")
+# print(position_df)
+
+# for k in range(0, len(position_df)):
+
+# df.loc[i, 'bandwidth'] = last_bandwidth
+
+# elif (df.loc[i, 'start'] >= df.loc[j, 'finish']):
+#     position_df = df[df['bandwidth'] == ][j, 'bandwidth']
+#     found = False
+#     for k in len(position_df):
+#         if (df.loc[i, 'start'] < df.loc[j, 'finish']):
+#             found = true
+#     if
+
+
+tasks = df['task']
+
+# for task in tasks:
+#     print(task)
+#     stacks = []
+#     stacks = df[df['task'] == task]['stack'].tolist()
+#     print("stacks")
+#     print(stacks)
+#     stacks.sort()
+#     min = stacks[0]
+#
+#     df.loc[df['task'] == task, 'stack'] = min
+fig, gnt = plt.subplots()
+color = iter(cm.rainbow(np.linspace(0, 1, len(df))))
+# Plotting the area chart
+# palette = cycle(pex.colors.qualitative.Bold)
+# plt.style.use('ggplot')
+for l in range(0, len(df)):
+    print(df.loc[l, 'start'])
+    print(df.loc[l, 'finish'])
+    start = datetime.strptime(df.loc[l, 'start'], "%Y-%m-%d")
+    print(pd.to_datetime(start))
+    print(type(pd.to_datetime(start)))
+    finish = datetime.strptime(df.loc[l, 'finish'], "%Y-%m-%d")
+    print(type(pd.to_datetime(finish)))
+    print(type(pd.to_datetime(finish)))
+    #gnt.broken_barh([(pd.to_datetime(start).timestamp(), pd.to_datetime(finish).timestamp()-pd.to_datetime(start).timestamp())], [int(df.loc[l, 'bandwidth']), int(df.loc[l, 'effort'])], color=next(color))
+    gnt.broken_barh([(pd.to_datetime(start), pd.to_datetime(finish)-pd.to_datetime(start))], [int(df.loc[l, 'bandwidth']), int(df.loc[l, 'effort'])], color=next(color))
+
+
+# gantt = pex.timeline(df, x_start='start', x_end='finish',
+#                      y='bandwidth', color='task', height=600, width=height)
+# for i, d in enumerate(gantt.data):
+#     gantt.data[i]['width'] = df.loc[x, 'width']
+#
+fig.set_figheight(600)
+fig.set_figwidth(1200)
+
+#gnt.update_traces(marker_color=df.loc['task'].tolist(), marker_colorscale="Rainbow")
+#gnt.set_ylabel('fruit supply')
+#fig.show()
+# gantt.update_traces(width=width_list)
+#fig.write_image("yourfile.png")
+plt.style.use('ggplot')
+plt.show(block=True)
