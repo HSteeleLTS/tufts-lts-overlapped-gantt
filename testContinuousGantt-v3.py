@@ -39,9 +39,31 @@ filename = "FY24 Projects DRAFT-v2.xlsx"
 
 projects_df = pd.read_excel(filename, engine="openpyxl")
 
-#output_df = pd.Dataframe(columns=['stack', 'start', 'finish', 'task'])
-data = []
+
+
+
+
+min_start_date = projects_df['start_date'].apply(lambda x: datetime.strptime(x, "%Y-%m-%d")).min()
+
+max_end_date = projects_df['end_date'].apply(lambda x: datetime.strptime(x, "%Y-%m-%d")).max()#  max_end_date = projects_df.max(pd.to_datetime('finish'))
+delta = max_end_date - min_start_date
+length_of_matrix = delta
+
+delta = int(delta.total_seconds()/60/60/24)
+height_of_matrix = projects_df['level_of_effort'].sum()
+
+print("Height of matrix: " + str(height_of_matrix))
+
+print("Width of Matrix:  " + str(delta))
+rows, cols = (delta, height_of_matrix)
+arr = [[0]*cols]*rows
+
+print(arr)
+sys.exit()
+
+
 for x in range(0, len(projects_df)):
+
 
     task_dict = dict(order=x, bandwidth=0, effort=projects_df.loc[x, 'level_of_effort'], start=projects_df.loc[x, 'start_date'],
                      finish=projects_df.loc[x, 'end_date'], task=projects_df.loc[x, 'task'])
