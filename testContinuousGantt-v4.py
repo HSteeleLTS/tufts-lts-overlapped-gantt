@@ -86,7 +86,8 @@ master_plotting_df = master_plotting_df.applymap(lambda x: 0)
 # sys.exit()
 
 for x in range(0, len(projects_df)):
-
+    if x == 4:
+        break
 
     project_plotting_df = master_plotting_df.copy()
 
@@ -99,7 +100,7 @@ for x in range(0, len(projects_df)):
         #print(str(y + int(projects_df.loc[x, 'level_of_effort']) - 1))
         
         #try:
-        project_dates_and_effort_df = project_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.loc[x, 'start_date']: projects_df.loc[x, 'end_date']]
+        project_dates_and_effort_df = project_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.iloc[x, projects_df.columns.get_loc('start_date')]: projects_df.iloc[x, projects_df.columns.get_loc('end_date')]]
 
         #except:
         #    break
