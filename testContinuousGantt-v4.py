@@ -94,17 +94,18 @@ for x in range(0, len(projects_df)):
 
     
     #print(str(x) + " time through")
-    for y in range(0, height_of_matrix - 1):
+    y = 0
+    while y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) < height_of_matrix:
         #print(str(y + int(projects_df.loc[x, 'level_of_effort']) - 1))
         
-        try:
-            project_dates_and_effort_df = project_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.loc[x, 'start_date']: projects_df.loc[x, 'end_date']]
+        #try:
+        project_dates_and_effort_df = project_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.loc[x, 'start_date']: projects_df.loc[x, 'end_date']]
 
-        except:
-            break
+        #except:
+        #    break
         master_plotting_subslice_df = master_plotting_df.copy()
 
-        master_plotting_subslice_df = master_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.loc[x, 'start_date']: projects_df.loc[x, 'end_date']].loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.loc[x, 'start_date']: projects_df.loc[x, 'end_date']]
+        #master_plotting_subslice_df = master_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.loc[x, 'start_date']: projects_df.loc[x, 'end_date']].loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.loc[x, 'start_date']: projects_df.loc[x, 'end_date']]
         
 
 
@@ -116,7 +117,7 @@ for x in range(0, len(projects_df)):
         
         
 
-        if (project_dates_and_effort_df.equals(master_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.loc[x, 'start_date']: projects_df.loc[x, 'end_date']])):
+        if (project_dates_and_effort_df.equals(master_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.iloc[x, projects_df.columns.get_loc('start_date')]: projects_df.iloc[x, projects_df.columns.get_loc('end_date')]])):
             projects_df.iloc[x, projects_df.columns.get_loc('stack')] = y
             print("got in")
             master_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.loc[x, 'start_date']: projects_df.loc[x, 'end_date']] =  master_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.loc[x, 'start_date']: projects_df.loc[x, 'end_date']].applymap(lambda x: 1)
@@ -126,11 +127,12 @@ for x in range(0, len(projects_df)):
             
         
             master_plotting_df.to_excel("Plotting Dataframe for Testing - " +str(x) + ".xlsx")
-
+            y += 1
             break
 
         
         else:
+            y += 1
             print('miss')
         
 master_plotting_df.to_excel("Plotting DataFrame.xlsx")
