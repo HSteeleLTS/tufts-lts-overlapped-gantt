@@ -84,12 +84,12 @@ master_plotting_df = master_plotting_df.applymap(lambda x: 0)
 # print(master_plotting_df)
 
 # sys.exit()
-
+project_plotting_df = master_plotting_df.copy()
 for x in range(0, len(projects_df)):
-    if x == 4:
-        break
+    # if x == 4:
+    #     break
 
-    project_plotting_df = master_plotting_df.copy()
+    
 
     # print(project_plotting_df)
 
@@ -110,8 +110,7 @@ for x in range(0, len(projects_df)):
         
 
 
-        #print(master_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.loc[x, 'start_date']: projects_df.loc[x, 'end_date']])
-        #print(project_dates_and_effort_df)
+       
 
         # print(project_dates_and_effort_df.equals(master_plotting_subslice_df))
         # sys.exit()
@@ -121,8 +120,15 @@ for x in range(0, len(projects_df)):
         if (project_dates_and_effort_df.equals(master_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.iloc[x, projects_df.columns.get_loc('start_date')]: projects_df.iloc[x, projects_df.columns.get_loc('end_date')]])):
             projects_df.iloc[x, projects_df.columns.get_loc('stack')] = y
             print("got in")
-            master_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.loc[x, 'start_date']: projects_df.loc[x, 'end_date']] =  master_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.loc[x, 'start_date']: projects_df.loc[x, 'end_date']].applymap(lambda x: 1)
+            master_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.iloc[x, projects_df.columns.get_loc('start_date')]: projects_df.iloc[x, projects_df.columns.get_loc('end_date')]] =  master_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.iloc[x, projects_df.columns.get_loc('start_date')]: projects_df.iloc[x, projects_df.columns.get_loc('end_date')]].applymap(lambda z: 1)
 
+
+
+            # if x == 1:
+
+            #     print(master_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.iloc[x, projects_df.columns.get_loc('start_date')]: projects_df.iloc[x, projects_df.columns.get_loc('end_date')]])
+            #     print(project_dates_and_effort_df)
+            #     sys.exit()
             #print(master_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.loc[x, 'start_date']: projects_df.loc[x, 'end_date']])
 
             
