@@ -32,12 +32,13 @@ from datetime import date
 from itertools import cycle
 from matplotlib.pyplot import cm
 import numpy as np
+import re
 #import plotly.graph_objects as go
-#filename = askopenfilename(title="Select project sheet")
+filename = askopenfilename(title="Select project sheet")
 
-filename = "FY24 Projects DRAFT-v2.xlsx"
+#filename = "FY24 Projects DRAFT-v2.xlsx"
 
-projects_df = pd.read_excel(filename, engine="openpyxl")
+projects_df = pd.read_excel(filename, engine="openpyxl", dtype={'start_date': 'str', 'end_date': 'str'})
 
 projects_df['stack'] = 0
 projects_df = projects_df.sort_values(['start_date', 'end_date'])
@@ -46,6 +47,9 @@ pd.options.display.max_colwidth = 200
 print(projects_df)
 
 
+
+# projects_df['start_date'] = projects_df['start_date'].apply(lambda x: re.sub(r'(\d{4}-\d{2}-\d{2}).*$', r'\1', x))
+# projects_df['end_date'] = projects_df['end_date'].apply(lambda x: re.sub(r'(\d{4}-\d{2}-\d{2}).*$', r'\1', x))
 
 
 
@@ -119,7 +123,7 @@ for x in range(0, len(projects_df)):
 
         if (project_dates_and_effort_df.equals(master_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.iloc[x, projects_df.columns.get_loc('start_date')]: projects_df.iloc[x, projects_df.columns.get_loc('end_date')]])):
             projects_df.iloc[x, projects_df.columns.get_loc('stack')] = y
-            print("got in")
+            #print("got in")
             master_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.iloc[x, projects_df.columns.get_loc('start_date')]: projects_df.iloc[x, projects_df.columns.get_loc('end_date')]] =  master_plotting_df.loc[str(y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) - 1): str(y), projects_df.iloc[x, projects_df.columns.get_loc('start_date')]: projects_df.iloc[x, projects_df.columns.get_loc('end_date')]].applymap(lambda z: 1)
 
 
@@ -133,14 +137,14 @@ for x in range(0, len(projects_df)):
 
             
         
-            master_plotting_df.to_excel("Plotting Dataframe for Testing - " +str(x) + ".xlsx")
+            #master_plotting_df.to_excel("Plotting Dataframe for Testing - " +str(x) + ".xlsx")
             y += 1
             break
 
         
         else:
             y += 1
-            print('miss')
+            #print('miss')
         
 master_plotting_df.to_excel("Plotting DataFrame.xlsx")
 print(projects_df)
