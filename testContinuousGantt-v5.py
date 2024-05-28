@@ -146,12 +146,25 @@ for x in range(0, len(projects_df)):
             y += 1
             #print('miss')
         
-master_plotting_df.to_excel("Plotting DataFrame.xlsx")
+#master_plotting_df.to_excel("Plotting DataFrame.xlsx")
 print(projects_df)
+
+new_max_height_df = projects_df.copy()
+
+new_max_height = projects_df['stack'].max()
+
+new_max_height_df = projects_df[projects_df['stack'] == new_max_height]
+
+new_max_height_plus_level_of_effort = int(new_max_height_df['level_of_effort'].max()) + new_max_height
+print(new_max_height_df)
+print(new_max_height_plus_level_of_effort)
+
+
+
 
 df = projects_df.copy()
 
-fig, gnt = plt.subplots()
+fig, gnt = plt.subplots(figsize=(16, 10))
 array = np.linspace(0, 1, len(df))
 np.random.shuffle(array)
 color = iter(cm.rainbow(array))
@@ -180,8 +193,10 @@ for l in range(0, len(df)):
 # for i, d in enumerate(gantt.data):
 #     gantt.data[i]['width'] = df.loc[x, 'width']
 #
-fig.set_figheight(30)
-fig.set_figwidth(80)
+# fig.set_figheight(15)
+# fig.set_figwidth(80)
+# gnt.set_position([0, 0, 1, .6])
+fig.tight_layout()
 # fig.tight_layout()
 gnt.set_xlabel("Date")
 gnt.set_ylabel("Bandwidth")
@@ -191,8 +206,14 @@ gnt.set_ylabel("Bandwidth")
 # gantt.update_traces(width=width_list)
 #fig.write_image("yourfile.png")
 
-fig.legend()
-plt.subplots_adjust(right=0.6, bottom=0.2, top=1)
+fig.legend(ncol=3)
+
+top_value_benchmark = .710/10
+
+top_value = top_value_benchmark * new_max_height_plus_level_of_effort
+
+plt.subplots_adjust(right=0.9, bottom=0.2, top=top_value)
+figsize=(16, 10)
 plt.xticks(rotation=45)
 # plt.update_layout(legend=dict(font=dict(size(10))))
 plt.show(block=True)
