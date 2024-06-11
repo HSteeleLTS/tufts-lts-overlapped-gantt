@@ -1,3 +1,19 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from tkinter.filedialog import askopenfilename
+from datetime import datetime, timedelta
+from itertools import cycle
+from matplotlib.animation import FuncAnimation
+
+import sys
+import kaleido
+from datetime import datetime
+from datetime import date
+from itertools import cycle
+from matplotlib.pyplot import cm
+
+import re
 # import pandas as pd
 # import plotly.express as pex
 #
@@ -21,18 +37,7 @@
 # gantt
 
 
-import pandas as pd
-import plotly.express as pex
-import matplotlib.pyplot as plt
-from tkinter.filedialog import askopenfilename
-import sys
-import kaleido
-from datetime import datetime
-from datetime import date
-from itertools import cycle
-from matplotlib.pyplot import cm
-import numpy as np
-import re
+
 #import plotly.graph_objects as go
 filename = askopenfilename(title="Select project sheet")
 
@@ -86,7 +91,7 @@ master_plotting_df = master_plotting_df.applymap(lambda x: 0)
 
 
 # print(master_plotting_df)
-
+animation_frames = []
 # sys.exit()
 project_plotting_df = master_plotting_df.copy()
 for x in range(0, len(projects_df)):
@@ -101,6 +106,7 @@ for x in range(0, len(projects_df)):
     #print(str(x) + " time through")
     y = 0
     while y + int(projects_df.iloc[x, projects_df.columns.get_loc('level_of_effort')]) < height_of_matrix:
+
         #print(str(y + int(projects_df.loc[x, 'level_of_effort']) - 1))
 
         #try:
@@ -139,10 +145,12 @@ for x in range(0, len(projects_df)):
 
             #master_plotting_df.to_excel("Plotting Dataframe for Testing - " +str(x) + ".xlsx")
             y += 1
+            animation_frames.append(projects_df.copy())
             break
 
 
         else:
+            animation_frames.append(projects_df.copy())
             y += 1
             #print('miss')
 
@@ -164,70 +172,46 @@ new_max_height_plus_level_of_effort = int(new_max_height_df['level_of_effort'].m
 
 df = projects_df.copy()
 
+# Set up the figure and axis for animation
 fig, gnt = plt.subplots(figsize=(16, 10))
 array = np.linspace(0, 1, len(df))
 np.random.shuffle(array)
-color = iter(cm.rainbow(array))
-#
-# Plotting the area chart
-# palette = cycle(pex.colors.qualitative.Bold)
-# plt.style.use('ggplot')
-for l in range(0, len(df)):
-    #print(df.loc[l, 'start'])
-    #print(df.loc[l, 'finish'])
-    start = datetime.strptime(df.loc[l, 'start_date'], "%Y-%m-%d")
-    #print(pd.to_datetime(start))
-    #print(type(pd.to_datetime(start)))
-    finish = datetime.strptime(df.loc[l, 'end_date'], "%Y-%m-%d")
-    #print(type(pd.to_datetime(finish)))
-    #print(type(pd.to_datetime(finish)))
-    #gnt.broken_barh([(pd.to_datetime(start).timestamp(), pd.to_datetime(finish).timestamp()-pd.to_datetime(start).timestamp())], [int(df.loc[l, 'bandwidth']), int(df.loc[l, 'effort'])], color=next(color))
-    gnt.broken_barh([(pd.to_datetime(start), pd.to_datetime(finish)-pd.to_datetime(start))], [int(df.loc[l, 'stack']), int(df.loc[l, 'level_of_effort'])], color=next(color), label=df.loc[l, 'task'])
+colors = cycle(iter(cm.rainbow(array)))
+# Function to update the plot using animation_frames
+def update_plot(i):
+    gnt.cla()  # Clear the axis
+    current_frame = animation_frames[i]
 
-    data = [(pd.to_datetime(start), pd.to_datetime(finish)-pd.to_datetime(start))]
+    for index, row in projects_df.iterrows():
+        try:
+            start_date = datetime.strptime(row['start_date'], "%Y-%m-%d")
+            end_date = datetime.strptime(row['end_date'], "%Y-%m-%d")
+            duration = (end_date - start_date).days
+            stack = int(current_frame.loc[index, 'stack'])
+            level_of_effort = int(current_frame.loc[index, 'level_of_effort'])
+            task = current_frame.loc[index, 'task']
+            color = next(colors)
 
-    # print(data)
-    for x1, x2 in data:
-        gnt.text(x= x1 + x2/2,
-                y= (int(df.loc[l, 'stack']) + int(df.loc[l, 'level_of_effort'])) - int(df.loc[l, 'level_of_effort'])/2,
-                s=df.loc[l,  'task'],
+            gnt.broken_barh([(pd.to_datetime(start_date), pd.to_datetime(end_date)-pd.to_datetime(start_date))], [int(current_frame.loc[index, 'stack']), int(current_frame.loc[index, 'level_of_effort'])], color=color, label=current_frame.loc[index, 'task'])
+
+
+            gnt.text(
+                x=start_date + timedelta(days=duration / 2),
+                y=(stack + level_of_effort) - level_of_effort / 2,
+                s=task,
                 ha='center',
                 va='center',
                 color='blue',
-                fontsize='xx-small',
+                fontsize='xx-small'
+            )
+        except Exception as e:
+            print(e)
+    gnt.set_xlabel('Time')
+    gnt.set_ylabel('Task Effort')
+    gnt.set_title('Animated Broken Barh Plot')
 
-               )
+# Create the animation
+ani = FuncAnimation(fig, update_plot, frames=len(animation_frames), repeat=False)
 
-# ax.set_yticks(range(len(label)))
-# ax.set_yticklabels(label)
-
-
-# gantt = pex.timeline(df, x_start='start', x_end='finish',
-#                      y='bandwidth', color='task', height=600, width=height)
-# for i, d in enumerate(gantt.data):
-#     gantt.data[i]['width'] = df.loc[x, 'width']
-#
-# fig.set_figheight(15)
-# fig.set_figwidth(80)
-# gnt.set_position([0, 0, 1, .6])
-fig.tight_layout()
-# fig.tight_layout()
-gnt.set_xlabel("Date")
-gnt.set_ylabel("Hours per Day")
-#gnt.update_traces(marker_color=df.loc['task'].tolist(), marker_colorscale="Rainbow")
-#gnt.set_ylabel('fruit supply')
-#fig.show()
-# gantt.update_traces(width=width_list)
-#fig.write_image("yourfile.png")
-
-fig.legend(ncol=3)
-
-top_value_benchmark = .710/10
-
-top_value = top_value_benchmark * new_max_height_plus_level_of_effort
-
-plt.subplots_adjust(left=0.1, right=0.9, bottom=0.2, top=0.9)
-figsize=(16, 10)
-plt.xticks(rotation=45)
-# plt.update_layout(legend=dict(font=dict(size(10))))
-plt.show(block=True)
+# Display the animation
+plt.show()
